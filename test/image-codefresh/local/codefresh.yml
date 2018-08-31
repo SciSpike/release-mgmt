@@ -1,0 +1,26 @@
+version: '1.0'
+steps:
+  BuildingDockerImage:
+    title: Building Docker Image
+    type: build
+    image_name: release-test/image-codefresh
+    working_directory: ./
+    dockerfile: Dockerfile
+    tag: 1.0.0-pre.0
+  BuildingDockerImage2:
+    title: Building Docker Image
+    type: build
+    image_name: release-test/image-codefresh
+    working_directory: ./
+    dockerfile: Dockerfile
+    tag: 1.0.0-pre.0
+  PushingToDockerRegistry:
+    title: Pushing to Docker Registry
+    type: push
+    candidate: '${{BuildingDockerImage}}'
+    registry: scispike
+  PushingToDockerRegistry2:
+    title: Pushing to Docker Registry
+    type: push
+    candidate: '${{BuildingDockerImage2}}'
+    registry: scispike
