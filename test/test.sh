@@ -9,6 +9,6 @@ if [ -n "$TEST_DOCKER" ]; then
   export PREFIX="docker run --rm -i -v $LOCAL_PATH:/gitrepo -v $REMOTE_PATH:$REMOTE_PATH -e EMAIL=fake@scispike.com scispike"
 fi
 
-./setup.sh $@
-./test-bare.sh $@
-./teardown.sh $@
+"$THIS_ABSPATH/setup.sh" $@
+"$THIS_ABSPATH/test-bare.sh" $@
+"$THIS_ABSPATH/teardown.sh" $@

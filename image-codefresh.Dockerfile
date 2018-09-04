@@ -12,7 +12,7 @@ RUN apk update && \
 RUN npm i -g ymlx
 
 RUN mkdir /scripts
-COPY docker/match /scripts/match
+COPY ./match /scripts/match
 RUN chmod +x /scripts/match
 RUN ln -s /scripts/match /usr/local/bin/match
 
@@ -20,7 +20,7 @@ RUN mkdir /gitrepo
 VOLUME [ "/gitrepo" ]
 WORKDIR /gitrepo
 
-COPY release-image-codefresh /scripts/release-image-codefresh
+COPY ./release-image-codefresh /scripts/release-image-codefresh
 RUN chmod +x /scripts/release-image-codefresh
 RUN ln -s /scripts/release-image-codefresh /usr/local/bin/release-image-codefresh
 

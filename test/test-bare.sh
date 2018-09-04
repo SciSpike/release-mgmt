@@ -2,8 +2,10 @@
 set -ex
 
 TEST_TYPE=$1
+THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
+
 SCRIPT=${SCRIPT:-release-$TEST_TYPE}
-PREFIX=${PREFIX:-../../..}
+PREFIX=${PREFIX:-$THIS_ABSPATH/..}
 
 # set to empty string to disable
 export RELEASE_DEBUG=1
@@ -11,7 +13,7 @@ export RELEASE_DEBUG=1
 # TODO: assertions & test saddy paths
 
 (
-  cd $TEST_TYPE/local
+  cd "$THIS_ABSPATH/$TEST_TYPE/local"
 
   $PREFIX/$SCRIPT pre
 

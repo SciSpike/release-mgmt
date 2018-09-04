@@ -3,22 +3,24 @@ set -ex
 
 TEST_TYPE=$1
 
-rm -rf $TEST_TYPE/local/.git
-git init $TEST_TYPE/local
+THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
-rm -rf $TEST_TYPE/remote
-mkdir $TEST_TYPE/remote
-git init --bare $TEST_TYPE/remote
+rm -rf "$THIS_ABSPATH/$TEST_TYPE/local/.git"
+git init "$THIS_ABSPATH/$TEST_TYPE/local"
+
+rm -rf "$THIS_ABSPATH/$TEST_TYPE/remote"
+mkdir -p "$THIS_ABSPATH/$TEST_TYPE/remote"
+git init --bare "$THIS_ABSPATH/$TEST_TYPE/remote"
 
 if [ -z "$REMOTE_PATH" ]; then
-  REMOTE_PATH="$(cd "$(dirname "$TEST_TYPE")"; pwd)/$TEST_TYPE/remote"
+  REMOTE_PATH="$(cd "$(dirname "$THIS_ABSPATH/$TEST_TYPE")"; pwd)/$TEST_TYPE/remote"
 fi
 
-rm -rf $TEST_TYPE/local.bak
-cp -r $TEST_TYPE/local $TEST_TYPE/local.bak
+rm -rf "$THIS_ABSPATH/$TEST_TYPE/local.bak"
+cp -r "$THIS_ABSPATH/$TEST_TYPE/local" "$THIS_ABSPATH/$TEST_TYPE/local.bak"
 
 (
-  cd $TEST_TYPE/local
+  cd "$THIS_ABSPATH/$TEST_TYPE/local"
   git add .
   git commit -m 'bang'
   git remote add origin "$REMOTE_PATH"

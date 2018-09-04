@@ -8,7 +8,7 @@ RUN apk update && \
       openssh
 
 RUN mkdir /scripts
-COPY docker/match /scripts/match
+COPY ./match /scripts/match
 RUN chmod +x /scripts/match
 RUN ln -s /scripts/match /usr/local/bin/match
 
@@ -16,7 +16,7 @@ RUN mkdir /gitrepo
 VOLUME [ "/gitrepo" ]
 WORKDIR /gitrepo
 
-COPY release-version /scripts/release-version
+COPY ./release-version /scripts/release-version
 RUN chmod +x /scripts/release-version
 RUN ln -s /scripts/release-version /usr/local/bin/release-version
 
