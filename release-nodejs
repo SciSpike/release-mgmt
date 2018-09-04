@@ -32,19 +32,34 @@ if [ -n "$RELEASE_DEBUG" ]; then
   set -x
 fi
 
+ORIGIN=${ORIGIN:-origin}
+MASTER=${MASTER:-master}
+TAG_PREFIX=${TAG_PREFIX:-''}
+TAG_SUFFIX=${TAG_SUFFIX:-''}
+BRANCH_PREFIX=${BRANCH_PREFIX:-'v'}
+BRANCH_SUFFIX=${BRANCH_SUFFIX:-''}
+if [ -z "$NO_GIT_DISCOVERY_ACROSS_FILESYSTEM" ]; then
+  GIT_DISCOVERY_ACROSS_FILESYSTEM=1 # needed when running in a docker container
+fi
+
 usage() {
     cat<<EOF
 usage:
-if on master  branch: release pre|rc
+if on $MASTER branch: release pre|rc [chart]
 if on release branch: release major|minor|patch|pre
 
 optional supported environment variables:
 
-variable                  description
---------                  -----------
-ORIGIN                    name of git remote, default 'origin'
-MASTER                    name of master branch, default 'master'
-PACKAGE_JSON              name of package.json file
+variable                            description
+--------                            -----------
+ORIGIN                              name of git remote, default 'origin'
+MASTER                              name of master branch, default 'master'
+TAG_PREFIX                          prefix for tags, default ''
+TAG_SUFFIX                          suffix for tags, default ''
+BRANCH_PREFIX                       prefix for release branches, default 'v'
+BRANCH_SUFFIX                       suffix for release branches, default '' ('.x' is common)
+NO_GIT_DISCOVERY_ACROSS_FILESYSTEM  whether to not set GIT_DISCOVERY_ACROSS_FILESYSTEMS, default ''
+PACKAGE_JSON                        name of package.json file
 EOF
 }
 
@@ -94,10 +109,6 @@ setVersion() {
   cat "$PACKAGE_JSON"
 }
 
-ORIGIN=${ORIGIN:-origin}
-MASTER=${MASTER:-master}
-GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-
 echo "INFO: checking required preconditions"
 
 git pull
@@ -124,7 +135,7 @@ else
 fi
 
 BRANCH="$(git status | head -n 1 | awk '{ print $3 }')"
-if ! $MATCH '^(master|v[0-9]{1,}\.[0-9]{1,})$' "$BRANCH"; then # it is not a master or a release branch
+if ! $MATCH "^(master|$BRANCH_PREFIX[0-9]{1,}\.[0-9]{1,}$BRANCH_SUFFIX)$" "$BRANCH"; then # it is not a master or a release branch
   echo 'ERROR: you can only release from the master branch or release branches (vmajor.minor)!' >&2
   exit 3
 else
@@ -181,8 +192,9 @@ applyChanges() {
   MSG="INFO: pushed commits"
 
   if [ -n "$2" ]; then
-    git tag "$2"
-    echo "INFO: tagged $2"
+    tag="$TAG_PREFIX$2$TAG_SUFFIX"
+    git tag "$tag"
+    echo "INFO: tagged $tag"
     MSG="$MSG & tags"
   fi
 
@@ -201,7 +213,6 @@ applyChanges() {
 if [ "$BRANCH" == "$MASTER" ]; then # this will be either an rc, resulting in a new release branch, or a pre
   MATCHES="$($MATCH '^([0-9]{1,})\.([0-9]{1,})\.0\-pre\.([0-9]{1,})$' "$VERSION")"
   if [ -z "$MATCHES" ]; then
-  if [ -z "$MATCHES" ]; then
     echo "ERROR: the version does not match the format of major.minor.0-pre.n required in the $MASTER branch." >&2
     exit 8
   else
@@ -216,7 +227,7 @@ if [ "$BRANCH" == "$MASTER" ]; then # this will be either an rc, resulting in a 
 
   case "$RELEASE_LEVEL" in
   rc) # then it's time to create a new release branch
-      NEW_RELEASE_BRANCH="v$MAJOR.$MINOR"
+      NEW_RELEASE_BRANCH="$BRANCH_PREFIX$MAJOR.$MINOR$BRANCH_SUFFIX"
       git checkout -b $NEW_RELEASE_BRANCH
 
       NEW_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.0-rc.0"
