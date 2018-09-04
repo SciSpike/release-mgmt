@@ -10,7 +10,7 @@ We currently support release management for
 * Node.js projects (`release-nodejs`)
 * Projects that use a plain-text `VERSION` file (by any name)
 
-Others can be added via copy/paste/massage provided your version information is stored in files that can be processed on the command line.
+Others can be added via copy/paste/massage provided your version information is stored in files that can be processed on the command line (see below).
 
 ## Overview
 * The only supported source control system is [git](https://git-scm.com/).
@@ -41,8 +41,9 @@ Others can be added via copy/paste/massage provided your version information is 
 You need to have a Unix-like system with `git` & `docker` installed.
 You can even reference the raw script content in your own scripts in order to stay up to date if you'd like to, piping them to `sh` for execution (if you trust doing that):
 ```
-$ \curl -sSL https://raw.githubusercontent.com/SciSpike/release-mgmt/master/release-xxx \
-| sh -s -- pre # or rc, minor, patch, ...`
+$ VERSION=master \curl -sSL \
+https://raw.githubusercontent.com/SciSpike/release-mgmt/$VERSION/release-xxx | \
+sh -s -- pre # or rc, minor, ...`
 ```
 
 ## Running via Docker
@@ -56,3 +57,15 @@ If your current directory _is_ the root of your git repo:
 $ docker run --rm -i -v "$PWD:/gitrepo" -e EMAIL=you@example.com scispike/release-xxx pre # or rc, minor, patch, ...
 ```
 Just replace `xxx` above with `image-codefresh`, `chart`, `nodejs`, `version`, or whatever else we support in the future.
+
+## For Developers of This Module
+* Tests are in `test/`
+  * Run `test/test-all.sh`
+* Copy & paste an existing `release-xxx`, `xxx.Dockerfile`, `VERSION-xxx`, & `test/xxx` from an existing release script to make a new one, then remember to
+  * update `test/test-all.sh` to add your new type to those tested
+  * go create a Docker Hub repo called `scispike/release-xxx` similar to an existing one
+* To release a particular type of release script:
+  * `./release xxx level` where `xxx` is your type (`nodejs`, `version`, ...) & `level` is the release level (`pre`, `rc`, ...)
+
+> NOTE: this is a monorepo, so tags & branches are prefixed with types in order to distinguish them from one another!
+The Docker Hub build settings for the various repositories leverage this to only publish what's necessary for that respective repository.
