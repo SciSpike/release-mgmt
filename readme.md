@@ -13,7 +13,7 @@ We currently support release management for
 Others can be added via copy/paste/massage provided your version information is stored in files that can be processed on the command line.
 
 ## Overview
-* Teh only supported source control system is [git](https://git-scm.com/).
+* The only supported source control system is [git](https://git-scm.com/).
 * Version numbers are based on [Semantic Versioning](https://semver.org).
 * The prerelease suffix in `master` is `pre` (ie, `1.0.0-pre.0`).
 * The prerelease suffix in release branches is `rc` for "release candidate" (ie, `1.0.0-rc.0`).
