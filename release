@@ -39,5 +39,6 @@ esac
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
 export TAG_PREFIX=$type-
+export BRANCH_PREFIX=$type-v
 export VERSION_FILE=VERSION-$type
 "$THIS_ABSPATH/release-version" $level
