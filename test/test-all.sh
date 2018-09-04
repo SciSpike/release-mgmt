@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-for type in nodejs chart image-codefresh; do
+for type in nodejs chart image-codefresh version; do
   export TEST_DOCKER=
   ./test.sh $type
 

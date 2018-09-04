@@ -8,11 +8,12 @@ We currently support release management for
 * Helm charts (`release-chart`)
 * Docker images released via codefresh.io (`release-image-codefresh`)
 * Node.js projects (`release-nodejs`)
+* Projects that use a plain-text `VERSION` file (by any name)
 
-Others can be added via copy/paste/massage provided your version information is stored in files.
+Others can be added via copy/paste/massage provided your version information is stored in files that can be processed on the command line.
 
 ## Overview
-* Source control is assumed to be [git](https://git-scm.com/).
+* Teh only supported source control system is [git](https://git-scm.com/).
 * Version numbers are based on [Semantic Versioning](https://semver.org).
 * The prerelease suffix in `master` is `pre` (ie, `1.0.0-pre.0`).
 * The prerelease suffix in release branches is `rc` for "release candidate" (ie, `1.0.0-rc.0`).
@@ -36,16 +37,21 @@ Others can be added via copy/paste/massage provided your version information is 
   * You can continue fixing bugs in the release branch & possibly merging them back to `master` as you see fit.
   * You can then indefinitely release patches from the release branch with `./release-xxx patch` or prereleases with `./release-xxx rc`.
 
-## Prerequisites or Docker
-If you're not going to use the Dockerized versions of these release strategies (meaning the raw scripts), you need to have a Unix-like system with `git` & `docker` installed.
+## Running Natively
+You need to have a Unix-like system with `git` & `docker` installed.
 You can even reference the raw script content in your own scripts in order to stay up to date if you'd like to, piping them to `sh` for execution (if you trust doing that):
 ```
-$ \curl -SSL https://raw.githubusercontent.com/SciSpike/release-mgmt/master/release-nodejs | ...`
+$ \curl -sSL https://raw.githubusercontent.com/SciSpike/release-mgmt/master/release-xxx \
+| sh -s -- pre # or rc, minor, patch, ...`
 ```
 
-You can also forgo all dependencies except `docker` and use this strategy via Docker containers, as these scripts have been Dockerized under the `scispike` organization on [Docker Hub](https://hub.docker.com).
+## Running via Docker
+You can also forgo all dependencies except `docker` and use this strategy via its Docker containers, as these scripts have been Dockerized under the `scispike` organization on [Docker Hub](https://hub.docker.com).
 For example, see https://hub.docker.com/r/scispike/release-nodejs & similar Docker repositories.
 
+All you really have to do is map a volume containing the root of your git repo to `/gitrepo` and set the `EMAIL` environment variable.
+If your current directory _is_ the root of your git repo:
 ```
-$ # todo: provide docker invocation example
+$ docker run --rm -i -v "$PWD:/gitrepo" -e EMAIL=you@example.com scispike/release-xxx pre # or rc, minor, patch, ...
 ```
+Just replace `xxx` above with `image-codefresh`, `chart`, `nodejs`, `version`, or whatever else we support in the future.
