@@ -31,11 +31,11 @@ Others can be added via copy/paste/massage provided your version information is 
 * When you're feature complete, but not necessarily bug-free, you can cut your release branch with a "release candidate" from the `master` branch with `./release-xxx rc`.
   * This will create a release branch named `vx.y` where `x` is your `master` branch's current major version and `y` is the minor version.  The initial version in the `vx.y` branch will have the suffix `-rc.0`, which will be released, then it will be immediately bumped to `-rc.1` in preparation for your next release candidate.
   * As you fix bugs in your release candidate, make sure to assess whether they need to be merged back to `master`; `git cherry-pick` is a simple tool with which to do that.
-* Continue doing work in `master` for your next minor release, `vx.z` where `z` is `y + 1`.
 * When you're sufficiently bug-free in your release branch, you can perform a minor release in that branch with `./release-xxx minor`.
   * This will result in release `vx.y.0`, then bump your prerelease number in the branch to `x.y.1-rc.0`.
   * You can continue fixing bugs in the release branch & possibly merging them back to `master` as you see fit.
   * You can then indefinitely release patches from the release branch with `./release-xxx patch` or prereleases with `./release-xxx rc`.
+* In parallel after you've cut a release branch, you can continue doing work in `master` for your next minor release, `vx.z` where `z` is `y + 1`.
 
 ## Running Natively
 You need to have a Unix-like system with `git` & `docker` installed.
