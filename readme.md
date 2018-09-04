@@ -50,6 +50,7 @@ You can also forgo all dependencies except `docker` and use this strategy via it
 For example, see https://hub.docker.com/r/scispike/release-nodejs & similar Docker repositories.
 
 All you really have to do is map a volume containing the root of your git repo to `/gitrepo` and set the `EMAIL` environment variable.
+You might also want to include other environment variables supported by git; see https://git-scm.com/book/en/v2/Git-Internals-Environment-Variables.
 If your current directory _is_ the root of your git repo:
 ```
 $ docker run --rm -i -v "$PWD:/gitrepo" -e EMAIL=you@example.com scispike/release-xxx pre # or rc, minor, patch, ...
