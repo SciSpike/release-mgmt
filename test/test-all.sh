@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
+TYPES=${@:-nodejs chart version image image-codefresh}
 
-for type in nodejs chart image-codefresh version; do
+for type in $TYPES; do
+  echo '########################'
+  echo testing type $type
+  echo '########################'
+
   export TEST_DOCKER=
   "$THIS_ABSPATH/test.sh" $type
 
-  docker build --tag scispike/release-$type -f "$THIS_ABSPATH/../$type.Dockerfile" "$THIS_ABSPATH/.."
+  echo '########################'
+  echo testing type $type using docker
+  echo '########################'
 
   export TEST_DOCKER=1
   "$THIS_ABSPATH/test.sh" $type

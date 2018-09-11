@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 TEST_TYPE=$1
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
@@ -14,6 +14,8 @@ export RELEASE_DEBUG=1
 
 (
   cd "$THIS_ABSPATH/$TEST_TYPE/local"
+
+  set -x
 
   $PREFIX/$SCRIPT pre
 
