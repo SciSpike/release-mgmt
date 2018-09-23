@@ -97,7 +97,7 @@ if ! which $MATCH; then
 fi
 
 CHART_NAME="$(echo "$2" | $MATCH '(.*)/?$' | awk '{ print $1 }')" # drop trailing slash if it's there
-if [ "$CHART_NAME" == '..' ]; then
+if [ "$CHART_NAME" = '..' ]; then
   CHART_NAME="$(basename $(pwd) | $MATCH '(.*)/?$' | awk '{ print $1 }')"
   CHART_DIR=${CHART_DIR:-.}
 elif [ -n "$CHART_NAME" ]; then
@@ -105,7 +105,7 @@ elif [ -n "$CHART_NAME" ]; then
   CHART_DIR="${CHART_DIR:-$CHART_NAME}"
 else # no chart name given; see if there is a single directory in pwd that doesn't start with "."
   NON_DOT_DIRS="$(find . -type d -maxdepth 1 | sed 's|^\./||g' | grep -v '^\.')" # directories that don't start with '.'
-  if [ $(echo "$NON_DOT_DIRS" | wc -l | xargs) == 1 ]; then # we'll assume this sole dir is chart dir
+  if [ $(echo "$NON_DOT_DIRS" | wc -l | xargs) = 1 ]; then # we'll assume this sole dir is chart dir
     CHART_NAME="$(echo "$NON_DOT_DIRS" | $MATCH '(.*)/?$' | awk '{ print $1 }')"
     echo "INFO: using $CHART_NAME as chart name"
   else
@@ -177,7 +177,7 @@ else
   echo "INFO: no differences between local & remote branch $BRANCH"
 fi
 
-if [ "$BRANCH" == "$MASTER" ]; then
+if [ "$BRANCH" = "$MASTER" ]; then
   case "$RELEASE_LEVEL" in
     pre|rc)
       # ok
@@ -238,7 +238,7 @@ applyChanges() {
   echo "$MSG"
 }
 
-if [ "$BRANCH" == "$MASTER" ]; then # this will be either an rc, resulting in a new release branch, or a pre
+if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a new release branch, or a pre
   MATCHES="$($MATCH '^([0-9]{1,})\.([0-9]{1,})\.0\-pre\.([0-9]{1,})$' "$VERSION")"
   if [ -z "$MATCHES" ]; then
     echo "ERROR: the version does not match the format of major.minor.0-pre.n required in the $MASTER branch." >&2
@@ -329,19 +329,19 @@ case "$RELEASE_LEVEL" in
     # NOTE: if RELEASE_LEVEL is 'minor' & we're prepped for a major release, no harm, no foul.
     # A major release is the same as a minor release, only that the minor version is 0.
 
-    if [ $RELEASE_LEVEL == major ] && [ $MINOR != 0 ]; then
+    if [ $RELEASE_LEVEL = major ] && [ $MINOR != 0 ]; then
       echo "ERROR: this branch is not prepared for a major release because the minor version is $MINOR, not 0." >&2
       exit 10
     else
       NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.1-rc.0"
     fi
-    if [ $RELEASE_LEVEL == minor ] && [ $PATCH != 0 ]; then
+    if [ $RELEASE_LEVEL = minor ] && [ $PATCH != 0 ]; then
       echo "ERROR: a minor release has already been performed in this release branch; only patch releases are allowed here now." >&2
       exit 11
     else
       NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.1-rc.0"
     fi
-    if [ $RELEASE_LEVEL == patch ] && [ $PATCH == 0 ]; then
+    if [ $RELEASE_LEVEL = patch ] && [ $PATCH = 0 ]; then
       echo "ERROR: you must release a minor release before releasing a patch in this release branch." >&2
       exit 12
     else

@@ -131,7 +131,7 @@ else
   echo "INFO: no differences between local & remote branch $BRANCH"
 fi
 
-if [ "$BRANCH" == "$MASTER" ]; then
+if [ "$BRANCH" = "$MASTER" ]; then
   case "$RELEASE_LEVEL" in
     pre|rc)
       # ok
@@ -162,7 +162,7 @@ echo "INFO: determining build step names from $CODEFRESH_YML"
 if [ -n "$DOCKER_BUILD_STEP_NAMES" ]; then
   DOCKER_BUILD_STEP_NAMES="$(echo "$DOCKER_BUILD_STEP_NAMES" | tr "," " ")" # replace commas with spaces
 else
-  DOCKER_BUILD_STEP_NAMES="$(cat "$CODEFRESH_YML" | $YMLX 'Object.keys(this.steps).filter(it => this.steps[`${it}`].type === "build").join(" ")')"
+  DOCKER_BUILD_STEP_NAMES="$(cat "$CODEFRESH_YML" | $YMLX 'Object.keys(this.steps).filter(it => this.steps[`${it}`].type == "build").join(" ")')"
 fi
 FIRST_DOCKER_BUILD_STEP_NAME="$(echo "$DOCKER_BUILD_STEP_NAMES" | awk '{print $1}')"
 if [ -z "$FIRST_DOCKER_BUILD_STEP_NAME" ]; then
@@ -176,7 +176,7 @@ echo "INFO: determining push step names from $CODEFRESH_YML"
 if [ -n "$DOCKER_PUSH_STEP_NAMES" ]; then
   DOCKER_PUSH_STEP_NAMES="$(echo "$DOCKER_PUSH_STEP_NAMES" | tr "," " ")" # replace commas with spaces
 else
-  DOCKER_PUSH_STEP_NAMES="$(cat "$CODEFRESH_YML" | $YMLX 'Object.keys(this.steps).filter(it => this.steps[`${it}`].type === "push").join(" ")')"
+  DOCKER_PUSH_STEP_NAMES="$(cat "$CODEFRESH_YML" | $YMLX 'Object.keys(this.steps).filter(it => this.steps[`${it}`].type == "push").join(" ")')"
 fi
 
 echo "INFO: push step names are $DOCKER_PUSH_STEP_NAMES"
@@ -243,7 +243,7 @@ applyChanges() {
   echo "$MSG"
 }
 
-if [ "$BRANCH" == "$MASTER" ]; then # this will be either an rc, resulting in a new release branch, or a pre
+if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a new release branch, or a pre
   MATCHES="$($MATCH '^([0-9]{1,})\.([0-9]{1,})\.0\-pre\.([0-9]{1,})$' "$VERSION")"
   if [ -z "$MATCHES" ]; then
     echo "ERROR: the version does not match the format of major.minor.0-pre.n required in the $MASTER branch." >&2
@@ -337,19 +337,19 @@ case "$RELEASE_LEVEL" in
     # NOTE: if RELEASE_LEVEL is 'minor' & we're prepped for a major release, no harm, no foul.
     # A major release is the same as a minor release, only that the minor version is 0.
 
-    if [ $RELEASE_LEVEL == major ] && [ $MINOR != 0 ]; then
+    if [ $RELEASE_LEVEL = major ] && [ $MINOR != 0 ]; then
       echo "ERROR: this branch is not prepared for a major release because the minor version is $MINOR, not 0." >&2
       exit 10
     else
       NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.1-rc.0"
     fi
-    if [ $RELEASE_LEVEL == minor ] && [ $PATCH != 0 ]; then
+    if [ $RELEASE_LEVEL = minor ] && [ $PATCH != 0 ]; then
       echo "ERROR: a minor release has already been performed in this release branch; only patch releases are allowed here now." >&2
       exit 11
     else
       NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.1-rc.0"
     fi
-    if [ $RELEASE_LEVEL == patch ] && [ $PATCH == 0 ]; then
+    if [ $RELEASE_LEVEL = patch ] && [ $PATCH = 0 ]; then
       echo "ERROR: you must release a minor release before releasing a patch in this release branch." >&2
       exit 12
     else
