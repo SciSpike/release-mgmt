@@ -15,8 +15,6 @@ export RELEASE_DEBUG=1
 (
   cd "$THIS_ABSPATH/$TEST_TYPE/local"
 
-  set -x
-
   $PREFIX/$SCRIPT pre
 
   $PREFIX/$SCRIPT rc
