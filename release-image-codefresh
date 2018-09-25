@@ -183,7 +183,7 @@ echo "INFO: push step names are $DOCKER_PUSH_STEP_NAMES"
 echo "INFO: determining current version from $CODEFRESH_YML"
 
 VERSION="$(cat "$CODEFRESH_YML" | $YMLX "this.steps['$FIRST_DOCKER_BUILD_STEP_NAME'].tag")"
-if ! $MATCH "$VERSION" '\-(pre|rc)\.[0-9]{1,}$'; then
+if ! $MATCH '\-(pre|rc)\.[0-9]{1,}$' "$VERSION"; then
   echo 'ERROR: repository is in an inconsistent state: version does NOT end in a prerelease suffix!' >&2
   exit 3
 fi
