@@ -82,12 +82,12 @@ case "$RELEASE_LEVEL" in
 esac
 
 FX=fx
-if ! which $FX; then
-  FX="docker run --rm -i matthewadams12/$FX $FX"
+if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
+  FX="docker run --rm -i matthewadams12/fx fx"
 fi
 MATCH=match
-if ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/$MATCH"
+if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/match"
 fi
 
 PACKAGE_JSON="${PACKAGE_JSON:-package.json}"
@@ -107,6 +107,8 @@ setVersion() {
   echo "INFO: set 'version' attribute in $PACKAGE_JSON to $V"
   echo "$PACKAGE_JSON is now:"
   cat "$PACKAGE_JSON"
+  echo "INFO: running npm install to update package-lock.json"
+  npm install
 }
 
 echo "INFO: checking required preconditions"
