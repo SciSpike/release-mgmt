@@ -117,15 +117,18 @@ getVersion() {
 # usage: setVersion version
 setVersion() {
   V=$1
-  PACKAGE_JSON_CONTENT="$(cat $PACKAGE_JSON)"
-  echo "$PACKAGE_JSON_CONTENT" \
-    | $FX "it => { it.version = \"$V\"; return it; }" \
-    > $PACKAGE_JSON
+  PACKAGE_JSON_CONTENT="$(cat $PACKAGE_JSON | $FX "it => { it.version = \"$V\"; return it; }")"
+  echo "$PACKAGE_JSON_CONTENT" | sed 's|\\|\\\\|g' > $PACKAGE_JSON
   echo "INFO: set 'version' attribute in $PACKAGE_JSON to $V"
   echo "$PACKAGE_JSON is now:"
   cat "$PACKAGE_JSON"
   echo "INFO: running npm install to update package-lock.json"
-  npm install
+  if [ -f /.dockerenv ]; then
+    NODE_MODULES_WORKDIR=/tmp/node-work
+    mkdir -p $NODE_MODULES_WORKDIR
+    PREFIX_ARG="--prefix $NODE_MODULES_WORKDIR"
+  fi
+  npm install $PREFIX_ARG
 }
 
 echo "INFO: checking required preconditions"
