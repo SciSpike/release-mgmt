@@ -49,7 +49,7 @@ if [ "$PRE" != "pre" ]; then
 fi
 # support custom "rc" tokens
 RC=${RC:-rc}
-RC_USAGE=pre
+RC_USAGE=rc
 if [ "$RC" != "rc" ]; then
   RC_USAGE="$RC_USAGE|$RC"
 fi
