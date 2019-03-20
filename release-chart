@@ -109,8 +109,8 @@ if ! which $YMLX; then
   YMLX="docker run --rm -i matthewadams12/$YMLX"
 fi
 MATCH=match
-if ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/$MATCH"
+if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/match"
 fi
 
 CHART_NAME="$(echo "$2" | $MATCH '(.*)/?$' | awk '{ print $1 }')" # drop trailing slash if it's there

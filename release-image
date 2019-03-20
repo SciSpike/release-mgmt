@@ -100,8 +100,8 @@ case "$RELEASE_LEVEL" in
 esac
 
 MATCH=match
-if ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/$MATCH"
+if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/match"
 fi
 
 VERSION_FILE="${VERSION_FILE:-Dockerfile}"

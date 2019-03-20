@@ -104,8 +104,8 @@ if ! which $YMLX; then
   YMLX="docker run --rm -i matthewadams12/$YMLX"
 fi
 MATCH=match
-if ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/$MATCH"
+if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/match"
 fi
 
 echo "INFO: checking required preconditions"
