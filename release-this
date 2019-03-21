@@ -1,0 +1,44 @@
+#!/bin/sh
+set -e
+
+# Release a release script
+
+usage() {
+cat <<EOF
+usage:
+  $0 type level
+
+where:
+  type is 'chart', 'image-codefresh', 'nodejs', 'version', ...
+  level is 'pre', 'rc', 'minor', 'patch', or 'major'
+EOF
+exit 1
+}
+
+type="$1"
+level="$2"
+
+case "$type" in
+  chart|image-codefresh|nodejs|version|image)
+    # ok
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+case "$level" in
+  pre|rc|minor|patch|major)
+    # ok
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
+
+export TAG_PREFIX=$type-
+export BRANCH_PREFIX=$type-v
+export VERSION_FILE=VERSION-$type
+"$THIS_ABSPATH/release-version" $level
