@@ -1,31 +1,7 @@
 #!/bin/sh
-set -e
 
-# Release a release script
-
-usage() {
-cat <<EOF
-usage:
-  $0 level
-
-where:
-  level is 'pre', 'rc', 'minor', 'patch', or 'major'
-EOF
-exit 1
-}
-
-level="$1"
-
-case "$level" in
-  pre|rc|minor|patch|major)
-    # ok
-    ;;
-  *)
-    usage
-    ;;
-esac
+# Release release scripts
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
-export VERSION_FILE=VERSION
-"$THIS_ABSPATH/release-version" $level
+"$THIS_ABSPATH/release-version" $@

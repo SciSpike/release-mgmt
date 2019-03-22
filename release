@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # MIT License
 #
@@ -36,22 +36,24 @@ fi
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
-
 ORIGIN=${ORIGIN:-origin}
 MASTER=${MASTER:-master}
 TAG_PREFIX=${TAG_PREFIX:-''}
 TAG_SUFFIX=${TAG_SUFFIX:-''}
 BRANCH_PREFIX=${BRANCH_PREFIX:-'v'}
 BRANCH_SUFFIX=${BRANCH_SUFFIX:-''} # '.x' is a common one
+
 if [ -z "$NO_GIT_DISCOVERY_ACROSS_FILESYSTEM" ]; then
   GIT_DISCOVERY_ACROSS_FILESYSTEM=1 # needed when running in a docker container
 fi
+
 # support custom "pre" tokens
 PRE=${PRE:-pre}
 PRE_USAGE=pre
 if [ "$PRE" != "pre" ]; then
   PRE_USAGE="$PRE_USAGE|$PRE"
 fi
+
 # support custom "rc" tokens
 RC=${RC:-rc}
 RC_USAGE=rc
@@ -59,36 +61,39 @@ if [ "$RC" != "rc" ]; then
   RC_USAGE="$RC_USAGE|$RC"
 fi
 
+# ensure pre & rc tokens are not the same
 if [ "$PRE" == "$RC" ]; then
   echo "ERROR: PRE ($PRE) cannot be the same as RC ($RC)" >&2
   exit 1
 fi
 
-# Sourced from langauge specific version file
+# ensure pre token sorts alphabetically before rc token
+if [ "$PRE" \> "$RC" ]; then
+  echo "ERROR: PRE ($PRE) cannot sort alphabetically after RC ($RC)" >&2
+  exit 1
+fi
+
+# Source technology-specific file for usage, getVersion & setVersion functions
 case "$1" in
-chart)  echo "Version chart called"
+chart)
     source $THIS_ABSPATH/release-chart
     ;;
-image)  echo  "Version image called"
+image)
     source $THIS_ABSPATH/release-image
     ;;
-image-codefresh)  echo  "Sending SIGQUIT signal"
-    source $THIS_ABSPATH/rlease-image-codefresh
+image-codefresh)
+    source $THIS_ABSPATH/release-image-codefresh
     ;;
-maven)  echo  "Version maven called"
-    source release-maven
-    ;;
-nodejs) echo  "Version nodejs called"
+nodejs)
     source $THIS_ABSPATH/release-nodejs
-   ;;
-this) echo  "Eating my own dog food. Releasing this version release management repo"
-   source $THIS_ABSPATH/release-this
-   ;;
-version) echo  "Versioning repo with version file"
-   source $THIS_ABSPATH/release-version
-   ;;
-*) echo "Signal number $1 is not processed"
-   ;;
+    ;;
+version)
+    source $THIS_ABSPATH/release-version
+    ;;
+*)
+    echo "Unknown technology type: $1"
+    exit 1
+    ;;
 esac
 
 RELEASE_LEVEL="$2"
@@ -173,24 +178,22 @@ fi
 
 echo "INFO: ok to proceed with $RELEASE_LEVEL from branch $BRANCH"
 
-echo "INFO: determining current version from $PACKAGE_JSON"
+VERSION="$(getVersion)"
 
 if ! $MATCH "\-($PRE|$RC)\.[0-9]{1,}$" "$VERSION"; then
-  echo "ERROR: repository is in an inconsistent state: version does NOT end in prerelease suffix $PRE! You are currently on $BRANCH" >&2
+  echo "ERROR: repository is in an inconsistent state: version does not end in a prerelease suffix! You are currently on branch $BRANCH" >&2
   exit 3
 fi
-
-echo "INFO: current version is $VERSION"
 
 # usage: apply message [tag [remote branch]]
 applyChanges() {
   git add .
-  git commit --allow-empty -m "$2"
-  echo "INFO: committed changes with message: $2"
+  git commit --allow-empty -m "$1"
+  echo "INFO: committed changes with message: $1"
 
   MSG="INFO: pushed commits"
 
-  if [ -n "$3" ]; then
+  if [ -n "$2" ]; then
     tag="$TAG_PREFIX$3$TAG_SUFFIX"
     git tag "$tag"
     echo "INFO: tagged $tag"
@@ -198,9 +201,9 @@ applyChanges() {
   fi
 
   SET_UPSTREAM_ARGS=
-  if [ -n "$4" ] && [ -n "$5" ]; then
-    SET_UPSTREAM_ARGS="-u $4 $5"
-    MSG="$MSG & set tracked upstream to $4/$5"
+  if [ -n "$3" ] && [ -n "$4" ]; then
+    SET_UPSTREAM_ARGS="-u $3 $4"
+    MSG="$MSG & set tracked upstream to $3/$4"
   fi
 
   git push $SET_UPSTREAM_ARGS

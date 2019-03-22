@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # MIT License
 #
@@ -32,8 +32,8 @@
 usage() {
     cat<<EOF
 usage:
-if on $MASTER branch: release $PRE_USAGE|$RC_USAGE
-if on release branch: release major|minor|patch|$PRE_USAGE
+if on $MASTER branch: release nodejs $PRE_USAGE|$RC_USAGE
+if on release branch: release nodejs major|minor|patch|$PRE_USAGE
 
 optional supported environment variables:
 
@@ -43,10 +43,10 @@ ORIGIN                              name of git remote, default 'origin'
 MASTER                              name of master branch, default 'master'
 TAG_PREFIX                          prefix for tags, default ''
 TAG_SUFFIX                          suffix for tags, default ''
-BRANCH_PREFIX                       prefix for release branches, default 'v'
+BRANCH_PREFIX                       prefix for release branches, default 'v' ('' is common)
 BRANCH_SUFFIX                       suffix for release branches, default '' ('.x' is common)
 NO_GIT_DISCOVERY_ACROSS_FILESYSTEM  whether to not set GIT_DISCOVERY_ACROSS_FILESYSTEMS, default ''
-PACKAGE_JSON                        name of package.json file
+VERSION_FILE                        name of version file, default 'package.json'
 EOF
 }
 
@@ -59,21 +59,22 @@ if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
   MATCH="docker run --rm -i matthewadams12/match"
 fi
 
-PACKAGE_JSON="${PACKAGE_JSON:-package.json}"
-echo "INFO: using package file: $PACKAGE_JSON"
+VERSION_FILE="${VERSION_FILE:-package.json}"
+echo "INFO: using project file: $VERSION_FILE"
 
 getVersion() {
-  cat "$PACKAGE_JSON" | $FX this.version | sed 's/"//g'
+  echo "INFO: determining current version from $VERSION_FILE"
+  cat "$VERSION_FILE" | $FX this.version | sed 's/"//g'
 }
 
 # usage: setVersion version
 setVersion() {
   V=$1
-  PACKAGE_JSON_CONTENT="$(cat $PACKAGE_JSON | $FX "it => { it.version = \"$V\"; return it; }")"
-  echo "$PACKAGE_JSON_CONTENT" | sed 's|\\|\\\\|g' > $PACKAGE_JSON
-  echo "INFO: set 'version' attribute in $PACKAGE_JSON to $V"
-  echo "$PACKAGE_JSON is now:"
-  cat "$PACKAGE_JSON"
+  VERSION_FILE_CONTENT="$(cat $VERSION_FILE | $FX "it => { it.version = \"$V\"; return it; }")"
+  echo "$VERSION_FILE_CONTENT" | sed 's|\\|\\\\|g' > $VERSION_FILE
+  echo "INFO: set 'version' attribute in $VERSION_FILE to $V"
+  echo "$VERSION_FILE is now:"
+  cat "$VERSION_FILE"
   echo "INFO: running npm install to update package-lock.json"
   if [ -f /.dockerenv ]; then
     NODE_MODULES_WORKDIR=/tmp/node-work

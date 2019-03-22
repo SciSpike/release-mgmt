@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # MIT License
 #
@@ -52,6 +52,7 @@ EOF
 VERSION_FILE="VERSION"
 
 getVersion() {
+  echo "INFO: determining current version from $VERSION_FILE"
   cat "VERSION"
 }
 
@@ -63,5 +64,3 @@ setVersion() {
   echo "$VERSION_FILE is now:"
   cat "$VERSION_FILE"
 }
-
-echo "INFO: determining current version from $VERSION_FILE"
