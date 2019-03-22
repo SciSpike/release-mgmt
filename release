@@ -34,6 +34,9 @@ if [ -n "$RELEASE_DEBUG" ]; then
   set -x
 fi
 
+THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
+
+
 ORIGIN=${ORIGIN:-origin}
 MASTER=${MASTER:-master}
 TAG_PREFIX=${TAG_PREFIX:-''}
@@ -61,27 +64,28 @@ if [ "$PRE" == "$RC" ]; then
   exit 1
 fi
 
+# Sourced from langauge specific version file
 case "$1" in
 chart)  echo "Version chart called"
-    source release-chart
+    source $THIS_ABSPATH/release-chart
     ;;
 image)  echo  "Version image called"
-    source release-image
+    source $THIS_ABSPATH/release-image
     ;;
 image-codefresh)  echo  "Sending SIGQUIT signal"
-    source rlease-image-codefresh
+    source $THIS_ABSPATH/rlease-image-codefresh
     ;;
 maven)  echo  "Version maven called"
     source release-maven
     ;;
 nodejs) echo  "Version nodejs called"
-    source release-nodejs
+    source $THIS_ABSPATH/release-nodejs
    ;;
 this) echo  "Eating my own dog food. Releasing this version release management repo"
-   source release-this
+   source $THIS_ABSPATH/release-this
    ;;
 version) echo  "Versioning repo with version file"
-   source release-version
+   source $THIS_ABSPATH/release-version
    ;;
 *) echo "Signal number $1 is not processed"
    ;;
@@ -97,30 +101,13 @@ case "$RELEASE_LEVEL" in
     exit 0
     ;;
   *)
-    if [ -n "$1" ]; then
+    if [ -n "$2" ]; then
       echo "ERROR: specify release level of 'pre' or '$PRE' for prerelease, 'rc' or '$RC' for release candidate, 'patch', 'minor', or 'major'" >&2
     fi
     usage
     exit 1
     ;;
 esac
-
-
-FX=fx
-if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
-  FX="docker run --rm -i matthewadams12/fx fx"
-fi
-MATCH=match
-if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
-fi
-
-PACKAGE_JSON="${PACKAGE_JSON:-package.json}"
-echo "INFO: using package file: $PACKAGE_JSON"
-
-# Sourced from langauge specific version file
-getVersion
-setVersion
 
 echo "INFO: checking required preconditions"
 
@@ -147,9 +134,9 @@ else
   echo 'INFO: no unignored untracked files'
 fi
 
-BRANCH="$(git status | head -n 1 | awk '{ print $4 }')"
+BRANCH="$(git status | head -n 1 | awk '{ print $3 }')"
 if ! $MATCH "^(master|$BRANCH_PREFIX[0-9]{1,}\.[0-9]{1,}$BRANCH_SUFFIX)$" "$BRANCH"; then # it is not a master or a release branch
-  echo 'ERROR: you can only release from the master branch or release branches!' >&2
+  echo "ERROR: you can only release from the master branch or release branches! You are currently on $BRANCH" >&2
   exit 3
 else
   echo "INFO: on branch $BRANCH, from which releases are allowed"
@@ -188,9 +175,8 @@ echo "INFO: ok to proceed with $RELEASE_LEVEL from branch $BRANCH"
 
 echo "INFO: determining current version from $PACKAGE_JSON"
 
-VERSION="$(getVersion)"
 if ! $MATCH "\-($PRE|$RC)\.[0-9]{1,}$" "$VERSION"; then
-  echo "ERROR: repository is in an inconsistent state: version does NOT end in prerelease suffix $PRE!" >&2
+  echo "ERROR: repository is in an inconsistent state: version does NOT end in prerelease suffix $PRE! You are currently on $BRANCH" >&2
   exit 3
 fi
 
