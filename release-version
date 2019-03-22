@@ -52,7 +52,6 @@ EOF
 VERSION_FILE="VERSION"
 
 getVersion() {
-  echo "INFO: determining current version from $VERSION_FILE"
   cat "VERSION"
 }
 

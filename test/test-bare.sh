@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 TEST_TYPE=$1
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
@@ -15,23 +15,32 @@ export RELEASE_DEBUG=1
 (
   cd "$THIS_ABSPATH/$TEST_TYPE/local"
 
+  echo 'TEST: pre'
   $PREFIX/$SCRIPT $TEST_TYPE pre
 
+  echo 'TEST: rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
+  echo 'TEST: rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
+  echo 'TEST: minor'
   $PREFIX/$SCRIPT $TEST_TYPE minor
 
+  echo 'TEST: rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
+  echo 'TEST: patch'
   $PREFIX/$SCRIPT $TEST_TYPE patch
 
+  echo 'TEST: rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
   git checkout master
 
+  echo 'TEST: pre'
   $PREFIX/$SCRIPT $TEST_TYPE pre
 
+  echo 'TEST: rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 )

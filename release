@@ -74,27 +74,13 @@ if [ "$PRE" \> "$RC" ]; then
 fi
 
 # Source technology-specific file for usage, getVersion & setVersion functions
-case "$1" in
-chart)
-    source $THIS_ABSPATH/release-chart
-    ;;
-image)
-    source $THIS_ABSPATH/release-image
-    ;;
-image-codefresh)
-    source $THIS_ABSPATH/release-image-codefresh
-    ;;
-nodejs)
-    source $THIS_ABSPATH/release-nodejs
-    ;;
-version)
-    source $THIS_ABSPATH/release-version
-    ;;
-*)
-    echo "Unknown technology type: $1"
-    exit 1
-    ;;
-esac
+FUNCTIONS_FILE="$THIS_ABSPATH/release-$1"
+if [ -f "$FUNCTIONS_FILE" ]; then
+  source "$FUNCTIONS_FILE"
+else
+  echo "Unknown technology type: $1" >&2
+  exit 1
+fi
 
 RELEASE_LEVEL="$2"
 case "$RELEASE_LEVEL" in
@@ -137,6 +123,11 @@ if [ -n "$(git status -s)" ]; then
   exit 3
 else
   echo 'INFO: no unignored untracked files'
+fi
+
+MATCH=match
+if ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/$MATCH"
 fi
 
 BRANCH="$(git status | head -n 1 | awk '{ print $3 }')"
@@ -194,7 +185,7 @@ applyChanges() {
   MSG="INFO: pushed commits"
 
   if [ -n "$2" ]; then
-    tag="$TAG_PREFIX$3$TAG_SUFFIX"
+    tag="$TAG_PREFIX$2$TAG_SUFFIX"
     git tag "$tag"
     echo "INFO: tagged $tag"
     MSG="$MSG & tags"
@@ -292,10 +283,10 @@ else
     echo "INFO: version $VERSION matches expected format for branch $BRANCH"
 fi
 
-MAJOR="$(echo "$MATCHES" | awk '{ print $3 }')"
-MINOR="$(echo "$MATCHES" | awk '{ print $4 }')"
-PATCH="$(echo "$MATCHES" | awk '{ print $5 }')"
-PRERELEASE="$(echo "$MATCHES" | awk '{ print $6 }')"
+MAJOR="$(echo "$MATCHES" | awk '{ print $2 }')"
+MINOR="$(echo "$MATCHES" | awk '{ print $3 }')"
+PATCH="$(echo "$MATCHES" | awk '{ print $4 }')"
+PRERELEASE="$(echo "$MATCHES" | awk '{ print $5 }')"
 
 case "$RELEASE_LEVEL" in
   major|minor|patch)

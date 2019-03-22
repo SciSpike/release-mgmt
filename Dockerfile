@@ -16,9 +16,10 @@ RUN mkdir /gitrepo
 VOLUME [ "/gitrepo" ]
 WORKDIR /gitrepo
 
-COPY ./release-version /scripts/release-version
-RUN chmod +x /scripts/release-version
-RUN ln -s /scripts/release-version /usr/local/bin/release-version
+COPY ./release* /scripts/
+RUN rm /scripts/release-this
 
-ENTRYPOINT [ "release-version" ]
+RUN chmod +x /scripts/*
+
+ENTRYPOINT [ "/scripts/release" ]
 CMD [ "--help" ]
