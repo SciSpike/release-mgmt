@@ -15,32 +15,32 @@ export RELEASE_DEBUG=1
 (
   cd "$THIS_ABSPATH/$TEST_TYPE/local"
 
-  echo 'TEST: pre'
+  echo 'TEST: 1 pre'
   $PREFIX/$SCRIPT $TEST_TYPE pre
 
-  echo 'TEST: rc'
+  echo 'TEST: 2 rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  echo 'TEST: rc'
+  echo 'TEST: 3 rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  echo 'TEST: minor'
+  echo 'TEST: 4 minor'
   $PREFIX/$SCRIPT $TEST_TYPE minor
 
-  echo 'TEST: rc'
+  echo 'TEST: 5 rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  echo 'TEST: patch'
+  echo 'TEST: 6 patch'
   $PREFIX/$SCRIPT $TEST_TYPE patch
 
-  echo 'TEST: rc'
+  echo 'TEST: 7 rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 
   git checkout master
 
-  echo 'TEST: pre'
+  echo 'TEST: 8 pre'
   $PREFIX/$SCRIPT $TEST_TYPE pre
 
-  echo 'TEST: rc'
+  echo 'TEST: 9 rc'
   $PREFIX/$SCRIPT $TEST_TYPE rc
 )

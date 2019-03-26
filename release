@@ -28,11 +28,11 @@
 # git
 # docker (unless ymlx & match are available on the path as reported by `which`)
 
-# Source file for specific platform
-
 if [ -n "$RELEASE_DEBUG" ]; then
   set -x
 fi
+
+set -e
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
@@ -213,10 +213,10 @@ if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a n
   fi
 
   # create release branch
-  MAJOR="$(echo "$MATCHES" | awk '{ print $3 }')"
-  MINOR="$(echo "$MATCHES" | awk '{ print $4 }')"
+  MAJOR="$(echo "$MATCHES" | awk '{ print $2 }')"
+  MINOR="$(echo "$MATCHES" | awk '{ print $3 }')"
   PATCH=0
-  PRERELEASE="$(echo "$MATCHES" | awk '{ print $5 }')"
+  PRERELEASE="$(echo "$MATCHES" | awk '{ print $4 }')"
 
   case "$RELEASE_LEVEL" in
   rc|$RC) # then it's time to create a new release branch

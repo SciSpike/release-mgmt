@@ -52,7 +52,7 @@ EOF
 VERSION_FILE="VERSION"
 
 getVersion() {
-  cat "VERSION"
+  cat "$VERSION_FILE"
 }
 
 # usage: setVersion version

@@ -28,7 +28,6 @@
 # git
 # docker (unless ymlx & match are available on the path as reported by `which`)
 
-
 usage() {
     cat<<EOF
 usage:
@@ -52,18 +51,18 @@ EOF
 
 FX=fx
 if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
-  FX="docker run --rm -i matthewadams12/fx fx"
+  FX="docker run --privileged -d docker:dind -v /var/run/docker.sock:/var/run/docker.sock --rm -i matthewadams12/fx fx"
 fi
+
 MATCH=match
 if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
+  MATCH="docker run --privileged -d docker:dind -v /var/run/docker.sock:/var/run/docker.sock --rm -i matthewadams12/match"
 fi
 
 VERSION_FILE="${VERSION_FILE:-package.json}"
 echo "INFO: using project file: $VERSION_FILE"
 
 getVersion() {
-  echo "INFO: determining current version from $VERSION_FILE"
   cat "$VERSION_FILE" | $FX this.version | sed 's/"//g'
 }
 
