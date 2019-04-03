@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM node:8-alpine
 
 RUN apk update && \
     apk upgrade && \
@@ -6,6 +6,8 @@ RUN apk update && \
       bash \
       git \
       openssh
+
+RUN npm i -g fx ymlx
 
 RUN mkdir /scripts
 COPY ./match /scripts/match

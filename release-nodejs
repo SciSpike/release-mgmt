@@ -59,7 +59,7 @@ fi
 
 MATCH=match
 if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --privileged -d docker:dind --rm -i matthewadams12/match"
+  MATCH="docker run --rm -i matthewadams12/match"
 fi
 
 getVersion() {
