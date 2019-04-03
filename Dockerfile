@@ -1,13 +1,4 @@
-FROM node:8-alpine
-
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache \
-      bash \
-      git \
-      openssh
-
-RUN npm i -g fx ymlx
+FROM scispike/release-mgmt:1.0.0
 
 RUN mkdir /scripts
 COPY ./match /scripts/match
