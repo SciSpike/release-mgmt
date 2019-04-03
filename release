@@ -169,6 +169,7 @@ fi
 
 echo "INFO: ok to proceed with $RELEASE_LEVEL from branch $BRANCH"
 
+pwd
 VERSION="$(getVersion)"
 
 if ! $MATCH "\-($PRE|$RC)\.[0-9]{1,}$" "$VERSION"; then
