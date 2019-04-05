@@ -28,37 +28,6 @@
 # git
 # docker (unless ymlx & match are available on the path as reported by `which`)
 
-if [ -n "$RELEASE_DEBUG" ]; then
-  set -x
-fi
-
-ORIGIN=${ORIGIN:-origin}
-MASTER=${MASTER:-master}
-TAG_PREFIX=${TAG_PREFIX:-''}
-TAG_SUFFIX=${TAG_SUFFIX:-''}
-BRANCH_PREFIX=${BRANCH_PREFIX:-'v'}
-BRANCH_SUFFIX=${BRANCH_SUFFIX:-''} # '.x' is a common one
-if [ -z "$NO_GIT_DISCOVERY_ACROSS_FILESYSTEM" ]; then
-  GIT_DISCOVERY_ACROSS_FILESYSTEM=1 # needed when running in a docker container
-fi
-# support custom "pre" tokens
-PRE=${PRE:-pre}
-PRE_USAGE=pre
-if [ "$PRE" != "pre" ]; then
-  PRE_USAGE="$PRE_USAGE|$PRE"
-fi
-# support custom "rc" tokens
-RC=${RC:-rc}
-RC_USAGE=rc
-if [ "$RC" != "rc" ]; then
-  RC_USAGE="$RC_USAGE|$RC"
-fi
-
-if [ "$PRE" == "$RC" ]; then
-  echo "ERROR: PRE ($PRE) cannot be the same as RC ($RC)" >&2
-  exit 1
-fi
-
 usage() {
     cat<<EOF
 usage:
@@ -95,7 +64,7 @@ if ! which $MATCH; then
   MATCH="docker run --rm -i matthewadams12/$MATCH"
 fi
 
-CHART_NAME="$(echo "$2" | $MATCH '(.*)/?$' | awk '{ print $1 }')" # drop trailing slash if it's there
+CHART_NAME="$(echo "$3" | $MATCH '(.*)/?$' | awk '{ print $1 }')" # drop trailing slash if it's there
 if [ "$CHART_NAME" = '..' ]; then
   CHART_NAME="$(basename $(pwd) | $MATCH '(.*)/?$' | awk '{ print $1 }')"
   CHART_DIR=${CHART_DIR:-.}
