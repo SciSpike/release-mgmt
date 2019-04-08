@@ -4,4 +4,4 @@
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
-"$THIS_ABSPATH/release-version" $@
+"$THIS_ABSPATH/release" version $@
