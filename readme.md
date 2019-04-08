@@ -58,11 +58,16 @@ $ docker run --rm -i -v "$PWD:/gitrepo" -e EMAIL=you@example.com scispike/releas
 Just replace `xxx` above with `image`, `chart`, `nodejs`, `version`, or whatever else we support in the future.
 
 ## For Developers of This Module
+* `./release` is basically an abstract function that implements the release workflow, but needs `getVersion`, `setVersion` and `usage_xxx` functions to exist at runtime for the particular technology being used.
+`./release` looks for a file called `./release-$1` (where `$1` is the value of the first argument given) & sources it, which provides said functions.
+Valid values for `$1`, initially, are `chart` for Helm Charts, `image` for Docker images, `nodejs` for Node.js projects using `npm`, and `version` for projects that use a simple text file called `VERSION`, but may increase over time.
 * Tests are in `test/`
   * Run `test/test-all.sh`
-* Copy & paste an existing `release-xxx` script & `test/xxx` directory from an existing release technology to make a new one, then remember to
+  * There needs to be (more) assertions in the tests, and we need better saddy path coverage.
+* To add a technology, copy & paste an existing one:
+  * Look for a `release-xxx` script & a `test/xxx` directory from an existing release technology `xxx`, then remember to
   * update `test/test-all.sh` to add your new type to those tested
-* To release this release script:
+* To release this release script, this project Eats Its Own Dog Food™:
   * `./release-this level` where `level` is the release level (`pre`, `rc`, ...)
 
-> NOTE: this repo now releases all technologies together under a single release, and the prior images should be considered deprecated.
+> NOTE: this repo now releases all technologies together under a single release, and the prior Docker images should be considered deprecated.
