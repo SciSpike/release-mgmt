@@ -22,13 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# This script implements the release branch workflow for node.js projects.
-#
-# Requirements:
-# git
-# docker (unless ymlx & match are available on the path as reported by `which`)
-
-usage() {
+usage_nodejs() {
     cat<<EOF
 usage:
 if on $MASTER branch: release nodejs $PRE_USAGE|$RC_USAGE

@@ -28,7 +28,7 @@
 # git
 # docker (unless ymlx & match are available on the path as reported by `which`)
 
-usage() {
+usage_image() {
     cat<<EOF
 usage:
 if on $MASTER branch: release $PRE_USAGE|$RC_USAGE

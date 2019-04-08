@@ -75,10 +75,15 @@ fi
 
 # Source technology-specific file for usage, getVersion & setVersion functions
 FUNCTIONS_FILE="$THIS_ABSPATH/release-$1"
-if [ -f "$FUNCTIONS_FILE" ]; then
+if [ -z "$1" ]; then
+  echo "No technology type given"
+  echo "Usage: $0 <technology-type> <release-level>" >&2
+  exit 1
+elif [ -f "$FUNCTIONS_FILE" ]; then
   source "$FUNCTIONS_FILE"
 else
   echo "Unknown technology type: $1" >&2
+  echo "Usage: $0 <technology-type> <release-level>" >&2
   exit 1
 fi
 
@@ -88,14 +93,14 @@ case "$RELEASE_LEVEL" in
     # ok
     ;;
   h|he|hel|help)
-    usage
+    usage_$1
     exit 0
     ;;
   *)
     if [ -n "$2" ]; then
       echo "ERROR: specify release level of 'pre' or '$PRE' for prerelease, 'rc' or '$RC' for release candidate, 'patch', 'minor', or 'major'" >&2
     fi
-    usage
+    usage_$1
     exit 1
     ;;
 esac
