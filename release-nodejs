@@ -54,7 +54,7 @@ echo "INFO: using project file: $VERSION_FILE"
 
 FX=fx
 if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
-  FX="docker run -it -v "$(pwd)"/$VERSION_FILE:/$VERSION_FILE scispike/fx:latest $VERSION_FILE"
+  FX="docker run -i -v "$(pwd)"/$VERSION_FILE:/$VERSION_FILE scispike/fx:latest $VERSION_FILE"
 fi
 
 MATCH=match
