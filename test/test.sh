@@ -2,7 +2,7 @@
 set -ex
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
-TYPE=$1
+TYPE="$1"
 
 if [ -n "$TEST_DOCKER" ]; then
   export LOCAL_PATH="$THIS_ABSPATH/$TYPE/local"
@@ -12,6 +12,6 @@ if [ -n "$TEST_DOCKER" ]; then
   docker build --tag scispike/release -f "$THIS_ABSPATH/../Dockerfile" "$THIS_ABSPATH/.."
 fi
 
-"$THIS_ABSPATH/setup.sh" $@
-"$THIS_ABSPATH/test-bare.sh" $@
-"$THIS_ABSPATH/teardown.sh" $@
+"$THIS_ABSPATH/setup.sh" "$TYPE"
+"$THIS_ABSPATH/test-bare.sh" "$TYPE"
+"$THIS_ABSPATH/teardown.sh" "$TYPE"

@@ -46,19 +46,19 @@ VERSION_LABEL                       name of LABEL entry containing version, defa
 EOF
 }
 
-VERSION_FILE="${VERSION_FILE:-Dockerfile}"
-echo "INFO: using version file: $VERSION_FILE"
+DOCKER_FILE="${DOCKER_FILE:-Dockerfile}"
+echo "INFO: using version file: $DOCKER_FILE"
 VERSION_LABEL="${VERSION_LABEL:-version}"
 echo "INFO: using version label: $VERSION_LABEL"
 
-VERSION_LABEL_LINES="$(egrep '^LABEL' "$VERSION_FILE" | egrep -o "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?")"
+VERSION_LABEL_LINES="$(egrep '^LABEL' "$DOCKER_FILE" | egrep -o "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?")"
 if [ $(echo "$VERSION_LABEL_LINES" | wc -l) != 1 ]; then
   echo "ERROR: ambiguous or missing LABEL line with $VERSION_LABEL=<semver> entry" >&2
   exit 10
 fi
 
 getVersion_image() {
-  echo $(egrep '^LABEL' "$VERSION_FILE" | egrep -o "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?" | cut -d'=' -f2 | sed 's/"//g')
+  echo $(egrep '^LABEL' "$DOCKER_FILE" | egrep -o "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?" | cut -d'=' -f2 | sed 's/"//g')
 }
 
 # usage: setVersion version
@@ -66,7 +66,7 @@ setVersion_image() {
   V=$1
 
   first=true
-  printf "$(cat "$VERSION_FILE")\n" | while read line; do
+  printf "$(cat "$DOCKER_FILE")\n" | while read line; do
     label="$(echo "$line"  | egrep '^LABEL' | egrep "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?" || true)"
     if [ -z "$label" ]; then # skip it
       if [ $first = true ]; then
@@ -79,12 +79,12 @@ setVersion_image() {
       line="$(echo "$label" | sed -E "s/$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?/$VERSION_LABEL=$1/")"
       VERSION_FILE_CONTENT="$VERSION_FILE_CONTENT\n$line"
     fi
-    printf "$VERSION_FILE_CONTENT" > "$VERSION_FILE"
+    printf "$VERSION_FILE_CONTENT" > "$DOCKER_FILE"
   done
-  VERSION_FILE_CONTENT="$(cat "$VERSION_FILE")\n"
-  printf "$VERSION_FILE_CONTENT" > "$VERSION_FILE"
+  VERSION_FILE_CONTENT="$(cat "$DOCKER_FILE")\n"
+  printf "$VERSION_FILE_CONTENT" > "$DOCKER_FILE"
 
-  echo "INFO: set $VERSION_LABEL attribute in $VERSION_FILE to $V"
-  echo "$VERSION_FILE is now:"
-  cat "$VERSION_FILE"
+  echo "INFO: set $VERSION_LABEL attribute in $DOCKER_FILE to $V"
+  echo "$DOCKER_FILE is now:"
+  cat "$DOCKER_FILE"
 }
