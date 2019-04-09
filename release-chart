@@ -51,15 +51,6 @@ CHART_FILE                          name of chart file, default derived from cha
 EOF
 }
 
-YMLX=ymlx
-if ! which $YMLX; then
-  YMLX="docker run --rm -i matthewadams12/$YMLX"
-fi
-MATCH=match
-if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
-fi
-
 CHART_NAME="$(echo "$3" | $MATCH '(.*)/?$' | awk '{ print $1 }')" # drop trailing slash if it's there
 if [ "$CHART_NAME" = '..' ]; then
   CHART_NAME="$(basename $(pwd) | $MATCH '(.*)/?$' | awk '{ print $1 }')"
@@ -85,12 +76,12 @@ echo "INFO: using chart name:      $CHART_NAME"
 echo "INFO: using chart directory: $CHART_DIR"
 echo "INFO: using chart file:      $CHART_FILE"
 
-getVersion() {
+getVersion_chart() {
   cat "$CHART_FILE" | $YMLX this.version
 }
 
 # usage: setVersion version
-setVersion() {
+setVersion_chart() {
   V=$1
   CHART_CONTENT="$(cat $CHART_FILE)"
   echo "$CHART_CONTENT" \

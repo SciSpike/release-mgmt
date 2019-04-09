@@ -48,12 +48,12 @@ EOF
 VERSION_FILE="${VERSION_FILE:-VERSION}"
 echo "INFO: using version file: $VERSION_FILE"
 
-getVersion() {
+getVersion_version() {
   cat "$VERSION_FILE"
 }
 
 # usage: setVersion version
-setVersion() {
+setVersion_version() {
   V=$1
   echo "$V" > $VERSION_FILE
   echo "INFO: set 'version' attribute in $VERSION_FILE to $V"

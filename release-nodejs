@@ -41,35 +41,30 @@ TAG_SUFFIX                          suffix for tags, default ''
 BRANCH_PREFIX                       prefix for release branches, default 'v' ('' is common)
 BRANCH_SUFFIX                       suffix for release branches, default '' ('.x' is common)
 NO_GIT_DISCOVERY_ACROSS_FILESYSTEM  whether to not set GIT_DISCOVERY_ACROSS_FILESYSTEMS, default ''
-VERSION_FILE                        name of version file, default 'package.json'
+PACKAGE_JSON                        name of version file, default 'package.json'
 EOF
 }
 
-VERSION_FILE="${VERSION_FILE:-package.json}"
-echo "INFO: using project file: $VERSION_FILE"
+PACKAGE_JSON="${PACKAGE_JSON:-package.json}"
+echo "INFO: using project file: $PACKAGE_JSON"
 
-FX=fx
-if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
-  FX="docker run -v "$(pwd)"/$VERSION_FILE:/$VERSION_FILE scispike/fx:latest $VERSION_FILE"
+FX_nodejs=fx
+if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX_nodejs; then
+  FX_nodejs="docker run -v "$(pwd)"/$PACKAGE_JSON:/$PACKAGE_JSON scispike/fx:latest $PACKAGE_JSON"
 fi
 
-MATCH=match
-if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
-fi
-
-getVersion() {
-  cat "$VERSION_FILE" | $FX this.version | sed 's/"//g'
+getVersion_nodejs() {
+  cat "$PACKAGE_JSON" | $FX_nodejs this.version | sed 's/"//g'
 }
 
 # usage: setVersion version
-setVersion() {
+setVersion_nodejs() {
   V=$1
-  VERSION_FILE_CONTENT="$(cat $VERSION_FILE | $FX "it => { it.version = \"$V\"; return it; }")"
-  echo "$VERSION_FILE_CONTENT" | sed 's|\\|\\\\|g' > $VERSION_FILE
-  echo "INFO: set 'version' attribute in $VERSION_FILE to $V"
-  echo "$VERSION_FILE is now:"
-  cat "$VERSION_FILE"
+  VERSION_FILE_CONTENT="$(cat $PACKAGE_JSON | $FX_nodejs "it => { it.version = \"$V\"; return it; }")"
+  echo "$VERSION_FILE_CONTENT" | sed 's|\\|\\\\|g' > $PACKAGE_JSON
+  echo "INFO: set 'version' attribute in $PACKAGE_JSON to $V"
+  echo "$PACKAGE_JSON is now:"
+  cat "$PACKAGE_JSON"
   echo "INFO: running npm install to update package-lock.json"
   ls
   if [ -f /.dockerenv ]; then

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-TEST_TYPE=$1
+TEST_TYPE="$1"
 
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
