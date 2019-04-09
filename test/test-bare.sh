@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 TEST_TYPE=$1
 THIS_ABSPATH="$(cd "$(dirname "$0")"; pwd)"
 
-SCRIPT=${SCRIPT:-release-$TEST_TYPE}
+SCRIPT=${SCRIPT:-release}
 PREFIX=${PREFIX:-$THIS_ABSPATH/..}
 
 # set to empty string to disable
@@ -15,23 +15,32 @@ export RELEASE_DEBUG=1
 (
   cd "$THIS_ABSPATH/$TEST_TYPE/local"
 
-  $PREFIX/$SCRIPT pre
+  echo 'TEST: 1 pre'
+  $PREFIX/$SCRIPT $TEST_TYPE pre
 
-  $PREFIX/$SCRIPT rc
+  echo 'TEST: 2 rc'
+  $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  $PREFIX/$SCRIPT rc
+  echo 'TEST: 3 rc'
+  $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  $PREFIX/$SCRIPT minor
+  echo 'TEST: 4 minor'
+  $PREFIX/$SCRIPT $TEST_TYPE minor
 
-  $PREFIX/$SCRIPT rc
+  echo 'TEST: 5 rc'
+  $PREFIX/$SCRIPT $TEST_TYPE rc
 
-  $PREFIX/$SCRIPT patch
+  echo 'TEST: 6 patch'
+  $PREFIX/$SCRIPT $TEST_TYPE patch
 
-  $PREFIX/$SCRIPT rc
+  echo 'TEST: 7 rc'
+  $PREFIX/$SCRIPT $TEST_TYPE rc
 
   git checkout master
 
-  $PREFIX/$SCRIPT pre
+  echo 'TEST: 8 pre'
+  $PREFIX/$SCRIPT $TEST_TYPE pre
 
-  $PREFIX/$SCRIPT rc
+  echo 'TEST: 9 rc'
+  $PREFIX/$SCRIPT $TEST_TYPE rc
 )
