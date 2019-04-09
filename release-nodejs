@@ -48,24 +48,19 @@ EOF
 VERSION_FILE="${VERSION_FILE:-package.json}"
 echo "INFO: using project file: $VERSION_FILE"
 
-FX=fx
-if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX; then
-  FX="docker run -v "$(pwd)"/$VERSION_FILE:/$VERSION_FILE scispike/fx:latest $VERSION_FILE"
+FX_nodejs=fx
+if [ -n "$NO_USE_LOCAL_FX" ] || ! which $FX_nodejs; then
+  FX_nodejs="docker run -v "$(pwd)"/$VERSION_FILE:/$VERSION_FILE scispike/fx:latest $VERSION_FILE"
 fi
 
-MATCH=match
-if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
-fi
-
-getVersion() {
-  cat "$VERSION_FILE" | $FX this.version | sed 's/"//g'
+getVersion_nodejs() {
+  cat "$VERSION_FILE" | $FX_nodejs this.version | sed 's/"//g'
 }
 
 # usage: setVersion version
-setVersion() {
+setVersion_nodejs() {
   V=$1
-  VERSION_FILE_CONTENT="$(cat $VERSION_FILE | $FX "it => { it.version = \"$V\"; return it; }")"
+  VERSION_FILE_CONTENT="$(cat $VERSION_FILE | $FX_nodejs "it => { it.version = \"$V\"; return it; }")"
   echo "$VERSION_FILE_CONTENT" | sed 's|\\|\\\\|g' > $VERSION_FILE
   echo "INFO: set 'version' attribute in $VERSION_FILE to $V"
   echo "$VERSION_FILE is now:"

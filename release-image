@@ -46,11 +46,6 @@ VERSION_LABEL                       name of LABEL entry containing version, defa
 EOF
 }
 
-MATCH=match
-if [ -n "$NO_USE_LOCAL_MATCH" ] || ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/match"
-fi
-
 VERSION_FILE="${VERSION_FILE:-Dockerfile}"
 echo "INFO: using version file: $VERSION_FILE"
 VERSION_LABEL="${VERSION_LABEL:-version}"
@@ -62,12 +57,12 @@ if [ $(echo "$VERSION_LABEL_LINES" | wc -l) != 1 ]; then
   exit 10
 fi
 
-getVersion() {
+getVersion_image() {
   echo $(egrep '^LABEL' "$VERSION_FILE" | egrep -o "$VERSION_LABEL=\"?[0-9]+\.[0-9]+\.[0-9]+(-[^ \"]*)?\"?" | cut -d'=' -f2 | sed 's/"//g')
 }
 
 # usage: setVersion version
-setVersion() {
+setVersion_image() {
   V=$1
 
   first=true

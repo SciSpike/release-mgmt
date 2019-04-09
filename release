@@ -69,41 +69,82 @@ if [ "$PRE" \> "$RC" ]; then
   exit 1
 fi
 
-# Source technology-specific file for usage, getVersion & setVersion functions
-FUNCTIONS_FILE="$THIS_ABSPATH/release-$1"
-if [ -z "$1" ]; then
-  echo "No technology type given"
-  echo "Usage: $0 <technology-type> <release-level>" >&2
-  exit 1
-elif [ -f "$FUNCTIONS_FILE" ]; then
-  source "$FUNCTIONS_FILE"
-else
-  echo "Unknown technology type: $1" >&2
-  echo "Usage: $0 <technology-type> <release-level>" >&2
+if [ $# -lt 2 ]; then
+  echo "Insufficient arguments" >&2
+  echo "Usage: $0 <technology-type> [<technology-type2> [<technology-type3> ...]] <release-level>" >&2
   exit 1
 fi
 
-RELEASE_LEVEL="$2"
+TECHNOLOGIES="${@:1:$#-1}"
+
+# Source technology-specific file(s) for usage_xxx, getVersion_xxx & setVersion_xxx functions
+for T in $TECHNOLOGIES; do
+  FUNCTIONS_FILE="$THIS_ABSPATH/release-$T"
+  if [ -f "$FUNCTIONS_FILE" ]; then
+    source "$FUNCTIONS_FILE"
+  else
+    echo "Unknown technology type: $T" >&2
+    echo "Usage: $0 <technology-type> <release-level>" >&2
+    exit 1
+  fi
+done
+
+# usage: setVersions version
+setVersions() {
+  for T in $TECHNOLOGIES; do
+    setVersion_$T $1
+  done
+}
+
+usages() {
+  for T in $TECHNOLOGIES; do
+    usage_$T
+  done
+}
+
+RELEASE_LEVEL="${@: -1}"
+
 case "$RELEASE_LEVEL" in
   major|minor|patch|pre|rc|$PRE|$RC)
     # ok
     ;;
   h|he|hel|help)
-    usage_$1
+    usages
     exit 0
     ;;
   *)
     if [ -n "$2" ]; then
       echo "ERROR: specify release level of 'pre' or '$PRE' for prerelease, 'rc' or '$RC' for release candidate, 'patch', 'minor', or 'major'" >&2
     fi
-    usage_$1
+    usages
     exit 1
     ;;
 esac
 
+MATCH=match
+if ! which $MATCH; then
+  MATCH="docker run --rm -i matthewadams12/$MATCH"
+fi
+
+YMLX=ymlx
+if ! which $YMLX; then
+  YMLX="docker run --rm -i matthewadams12/$YMLX"
+fi
+
 echo "INFO: checking required preconditions"
 
 git pull
+
+# check that all versions are exactly the same
+for T in $TECHNOLOGIES; do
+  V="$(getVersion_$T)"
+  if [ -n "$V_LAST" ] && [ "$V_LAST" != "$V" ]; then
+    echo "ERROR: versions among different technology files differ: $T is at $V, but $T_LAST is at $V_LAST" >&2
+    exit 33
+  fi
+  V_LAST="$V"
+  T_LAST="$T"
+done
 
 if ! git diff --exit-code --no-patch; then
   echo 'ERROR: you have modified tracked files; only release from clean directories!' >&2
@@ -124,11 +165,6 @@ if [ -n "$(git status -s)" ]; then
   exit 3
 else
   echo 'INFO: no unignored untracked files'
-fi
-
-MATCH=match
-if ! which $MATCH; then
-  MATCH="docker run --rm -i matthewadams12/$MATCH"
 fi
 
 BRANCH="$(git status | head -n 1 | awk '{ print $3 }')"
@@ -170,8 +206,7 @@ fi
 
 echo "INFO: ok to proceed with $RELEASE_LEVEL from branch $BRANCH"
 
-pwd
-VERSION="$(getVersion)"
+VERSION="$V_LAST"
 
 if ! $MATCH "\-($PRE|$RC)\.[0-9]{1,}$" "$VERSION"; then
   echo "ERROR: repository is in an inconsistent state: version does not end in a prerelease suffix! You are currently on branch $BRANCH" >&2
@@ -227,7 +262,7 @@ if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a n
 
       NEW_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.0-$RC.0"
 
-      setVersion $NEW_RELEASE_BRANCH_VERSION
+      setVersions $NEW_RELEASE_BRANCH_VERSION
 
       applyChanges "release $NEW_RELEASE_BRANCH_VERSION" $NEW_RELEASE_BRANCH_VERSION $ORIGIN $NEW_RELEASE_BRANCH
       echo "INFO: created release branch $NEW_RELEASE_BRANCH and tagged $NEW_RELEASE_BRANCH_VERSION for release"
@@ -242,7 +277,7 @@ if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a n
       # advance master version
       NEXT_VERSION="$MAJOR.$(($MINOR+1)).0-$PRE.0"
 
-      setVersion $NEXT_VERSION $DOCKER_BUILD_STEP_NAMES
+      setVersions $NEXT_VERSION $DOCKER_BUILD_STEP_NAMES
 
       applyChanges "bump to $NEXT_VERSION [skip ci]"
 
@@ -252,7 +287,7 @@ if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a n
 
       NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.0-$RC.1"
 
-      setVersion $NEXT_RELEASE_BRANCH_VERSION $DOCKER_BUILD_STEP_NAMES
+      setVersions $NEXT_RELEASE_BRANCH_VERSION $DOCKER_BUILD_STEP_NAMES
 
       applyChanges "bump to $NEXT_RELEASE_BRANCH_VERSION [skip ci]"
 
@@ -260,13 +295,13 @@ if [ "$BRANCH" = "$MASTER" ]; then # this will be either an rc, resulting in a n
       ;;
 
   pre|$PRE)
-      setVersion $VERSION
+      setVersions $VERSION
 
       applyChanges "release $VERSION" $VERSION
 
       NEXT_VERSION=$MAJOR.$MINOR.$PATCH-$PRE.$((PRERELEASE+1))
 
-      setVersion $NEXT_VERSION
+      setVersions $NEXT_VERSION
 
       applyChanges "bump to $NEXT_VERSION [skip ci]"
 
@@ -282,7 +317,7 @@ if [ -z "$MATCHES" ]; then
   echo "ERROR: the version does not match the format of major.minor.patch-$RC.n required in the release branch." >&2
   exit 8
 else
-    echo "INFO: version $VERSION matches expected format for branch $BRANCH"
+  echo "INFO: version $VERSION matches expected format for branch $BRANCH"
 fi
 
 MAJOR="$(echo "$MATCHES" | awk '{ print $2 }')"
@@ -319,11 +354,11 @@ case "$RELEASE_LEVEL" in
 
     RELEASE_VERSION="$MAJOR.$MINOR.$PATCH"
 
-    setVersion $RELEASE_VERSION
+    setVersions $RELEASE_VERSION
 
     applyChanges "release $RELEASE_VERSION" $RELEASE_VERSION
 
-    setVersion $NEXT_RELEASE_BRANCH_VERSION
+    setVersions $NEXT_RELEASE_BRANCH_VERSION
 
     applyChanges "bump to $NEXT_RELEASE_BRANCH_VERSION [skip ci]"
 
@@ -331,13 +366,13 @@ case "$RELEASE_LEVEL" in
     ;;
 
   rc|$RC)
-    setVersion $VERSION
+    setVersions $VERSION
 
     applyChanges "release $VERSION" $VERSION
 
     NEXT_RELEASE_BRANCH_VERSION="$MAJOR.$MINOR.$PATCH-$RC.$((PRERELEASE+1))"
 
-    setVersion $NEXT_RELEASE_BRANCH_VERSION
+    setVersions $NEXT_RELEASE_BRANCH_VERSION
 
     applyChanges "bump to $NEXT_RELEASE_BRANCH_VERSION [skip ci]"
 
