@@ -3,7 +3,49 @@ This repository contains bash shell scripts that assist in implementing a releas
 
 In this strategy, the `master` branch contains the latest & greatest code, and branches are created for each minor version (`vx.y`) and only patches for that release go into its minor branch.
 
-> _TL;DR:_ This is a minor-release-per-branch strategy, and all that the scripts do is manipulate versions, create release commits & tags, create release branches, and push so that your CI/CD process can actually perform releases based on branch & tag names.
+## TL;DR
+```sh
+$ git clone git@github.com:SciSpike/release-mgmt.git /tmp/scispike/release-mgmt
+$ alias release=/tmp/scispike/release-mgmt/release
+$
+$ # For a Node.js project using npm:
+$ release nodejs pre   # release a preview
+$ release nodejs rc    # release a release candidate
+$ release nodejs minor # release a minor version
+$ release nodejs patch # release a patch
+$
+$ # For a Node.js project using npm that also produces a Docker image,
+$ # and you want the package version to be the same as the Docker image's
+$ # version label:
+$ release nodejs+image pre   # release a preview
+$ release nodejs+image rc    # release a release candidate
+$ release nodejs+image minor # release a minor version
+$ release nodejs+image patch # release a patch
+$
+$ # For a Helm chart project:
+$ release chart pre   # release a preview
+$ release chart rc    # release a release candidate
+$ release chart minor # release a minor version
+$ release chart patch # release a patch
+$
+$ # For a generic project that uses a VERSION file:
+$ release version pre   # release a preview
+$ release version rc    # release a release candidate
+$ release version minor # release a minor version
+$ release version patch # release a patch
+$
+$ # To use the Docker image to release a Node.js preview:
+$ docker run \
+    --rm \
+    -it \
+    -e EMAIL=your@email.here \
+    -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
+    -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
+    -v $PWD:/gitrepo \
+    scispike/release \
+    nodejs pre
+```
+This is a minor-release-per-branch strategy, and all that the scripts do is manipulate versions, create release commits & tags, create release branches, and push so that your CI/CD process can actually perform releases based on branch & tag names.
 You can override certain defaults; see the `release-xxx` scripts for more information, or issue `./release xxx --help` to get usage information, where `xxx` is `nodejs`, `image`, `version`, or `chart`.
 
 We currently support release management for
