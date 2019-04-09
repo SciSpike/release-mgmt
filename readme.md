@@ -3,7 +3,7 @@ This repository contains bash shell scripts that assist in implementing a releas
 
 In this strategy, the `master` branch contains the latest & greatest code, and branches are created for each minor version (`vx.y`) and only patches for that release go into its minor branch.
 
-> _TL;DR:_ This is a minor-release-per-branch strategy, and all that the scripts do is manipulate versions, create release commits & tags, and push so that your CI/CD process can actually perform releases based on branch & tag names.
+> _TL;DR:_ This is a minor-release-per-branch strategy, and all that the scripts do is manipulate versions, create release commits & tags, create release branches, and push so that your CI/CD process can actually perform releases based on branch & tag names.
 You can override certain defaults; see the `release-xxx` scripts for more information, or issue `./release xxx --help` to get usage information, where `xxx` is `nodejs`, `image`, `version`, or `chart`.
 
 We currently support release management for
