@@ -15,7 +15,7 @@ RUN rm /scripts/release-this
 RUN chmod +x /scripts/*
 
 RUN mkdir -p /root/.ssh
-RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+RUN ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
 
 COPY .docker.entrypoint.sh /
 RUN chmod +x /.docker.entrypoint.sh
