@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+# MIT License
+#
+# Copyright (c) 2019 SciSpike, LLC
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# This script implements usage(), getVersion() & setVersion() for .NET C# projects.
+
+usage_net() {
+    cat<<EOF
+usage:
+if on $MASTER branch: release nodejs $PRE_USAGE|$RC_USAGE
+if on release branch: release nodejs major|minor|patch|$PRE_USAGE
+
+optional supported environment variables:
+
+variable                            description
+--------                            -----------
+ORIGIN                              name of git remote, default 'origin'
+MASTER                              name of master branch, default 'master'
+TAG_PREFIX                          prefix for tags, default ''
+TAG_SUFFIX                          suffix for tags, default ''
+BRANCH_PREFIX                       prefix for release branches, default 'v' ('' is common)
+BRANCH_SUFFIX                       suffix for release branches, default '' ('.x' is common)
+NO_GIT_DISCOVERY_ACROSS_FILESYSTEM  whether to not set GIT_DISCOVERY_ACROSS_FILESYSTEMS, default ''
+ASSEMBLY_INFO_FILE                        name of version file, default 'AssemblyInfo.cs'
+EOF
+}
+
+ASSEMBLY_INFO_FILE="${ASSEMBLY_INFO_FILE:-AssemblyInfo.cs}"
+echo "INFO: using project file: $ASSEMBLY_INFO_FILE"
+
+getVersion_net() {
+#cat $ASSEMBLY_INFO_FILE
+grep -Po '(?<=AssemblyInformationalVersion\(\").*(?=\"\)])' $ASSEMBLY_INFO_FILE
+}
+
+# usage: setVersion version
+setVersion_net() {
+V=$1
+
+readarray -d - -t tmp <<< "$V"
+
+#extra=0
+#length=2
+#
+#if [ "${#tmp[@]}" -eq "${length}" ]; then
+#	readarray -d . -t tmp2 <<< "${tmp[1]}"
+#	if [ "${#tmp2[@]}" -eq "${length}" ]; then
+#		extra="$((${tmp2[1]} + 0))"
+#	fi
+#fi
+
+VER=$(echo "${tmp[0]}" | sed -e 's/\r//g')
+
+FV="$VER.0"
+AV="$VER.*"
+
+sed -i "s/AssemblyFileVersion.*/\AssemblyFileVersion\(\"$FV\"\)]/" $ASSEMBLY_INFO_FILE
+sed -i "s/AssemblyVersion.*/\AssemblyVersion\(\"$AV\"\)]/" $ASSEMBLY_INFO_FILE
+sed -i "s/AssemblyInformationalVersion.*/\AssemblyInformationalVersion\(\"$V\"\)]/" $ASSEMBLY_INFO_FILE
+
+cat $ASSEMBLY_INFO_FILE
+}
