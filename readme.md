@@ -34,6 +34,12 @@ $ release version rc    # release a release candidate
 $ release version minor # release a minor version
 $ release version patch # release a patch
 $
+$ # For a .NET project in c# that uses a AssemblyInfo.cs file:
+$ release csharp pre   # release a preview
+$ release csharp rc    # release a release candidate
+$ release csharp minor # release a minor version
+$ release csharp patch # release a patch
+$
 $ # To use the Docker image to release a Node.js preview:
 $ docker run \
     --rm \
@@ -53,6 +59,7 @@ We currently support release management for
 * Docker images using `Dockerfile`'s `LABEL` directive with a `version=` label (`release-image`)
 * Node.js projects (`release-nodejs`) using `npm` along with `package.json` (`yarn` is a TODO)
 * Projects that use a plain-text `VERSION` file (by any name)
+* .NET projects in c# that use a AssemblyInfo.cs file
 
 If you need to support other project types, see below for developer information.
 
@@ -101,7 +108,7 @@ Just replace `xxx` above with `image`, `chart`, `nodejs`, `version`, or whatever
 
 ## For Developers of This Module
 * This project Eats Its Own Dog Food™.
-It uses a plaintext `VERSION` file to store its version.
+It uses a plain text `VERSION` file to store its version.
 Use the script `./release-this <level>` to release it, where `<level>` is `pre`, `rc`, `minor`, `patch`, or `major`.
 * `./release` is basically an abstract function that implements the release workflow, but needs `getVersion`, `setVersion` and `usage_xxx` functions to exist at runtime for the particular technology being used.
 `./release` looks for a file called `./release-$1` (where `$1` is the value of the first argument given) & sources it, which provides said functions.
@@ -116,3 +123,24 @@ Valid values for `$1`, initially, are `chart` for Helm Charts, `image` for Docke
   * `./release-this level` where `level` is the release level (`pre`, `rc`, ...)
 
 > NOTE: this repo now releases all technologies together under a single release, and the prior Docker images should be considered deprecated.
+
+## Running on Windows Prerequisits
+* Project requires Hyper-v, Docker and WSL (Windows Subsystem for Linux). 
+* Hyper-v can be added to Windows through Control Panel -> Programs and Features -> Turn Windows features on or off. If Hyper-v isn't an option you may need to upgrade your version of Windows.
+* Install Docker for Windows and choose the option of using Windows containers (default is linux). After docker is installed check the box in Settings -> General -> Expose daemon on tcp://localhost:2375 without TSL.
+* To install WSL open a powershell as admin and type `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux`.
+* After WSL is installed use the Windows Store to install a distro of linux (Ubuntu recommend). If not installing Ubuntu you will need to adjust the url to get the PGP Key below.
+* After your distro is installed open bash and run the following commands:
+  *`sudo apt-get update -y`
+  *`sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common`
+  *`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`
+  *`sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`
+  *`sudo apt-get update -y`
+  *`sudo apt-get install -y docker-ce`
+  *`sudo usermod -aG docker $USER`
+  *`sudo apt-get install -y docker-compose`
+  *`sudo mkdir /c` adjust for your drive where docker is installed. ignore if directory already exists.
+  *`sudo mount --bind /mnt/c /c`
+* Lastly, check that everything is running correctly.
+  *`docker info`
+  *`docker-compose --version`

@@ -65,6 +65,4 @@ setVersion_csharp() {
   | sed "s/AssemblyInformationalVersion.*/AssemblyInformationalVersion\(\"$1\"\)]/" \
   > "$ASSEMBLY_INFO_FILE"
 
-  echo "version file is now:"
-  cat "$ASSEMBLY_INFO_FILE"
 }
