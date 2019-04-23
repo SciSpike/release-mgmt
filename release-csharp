@@ -24,7 +24,7 @@
 
 # This script implements usage(), getVersion() & setVersion() for .NET C# projects.
 
-usage_net() {
+usage_csharp() {
     cat<<EOF
 usage:
 if on $MASTER branch: release nodejs $PRE_USAGE|$RC_USAGE
@@ -48,12 +48,12 @@ EOF
 ASSEMBLY_INFO_FILE="${ASSEMBLY_INFO_FILE:-AssemblyInfo.cs}"
 echo "INFO: using project file: $ASSEMBLY_INFO_FILE"
 
-getVersion_net() {
+getVersion_csharp() {
   cat $ASSEMBLY_INFO_FILE | grep AssemblyInformationalVersion | $MATCH \".*\" | sed 's/"//g'
 }
 
 # usage: setVersion version
-setVersion_net() {
+setVersion_csharp() {
   VER="$(echo "$1" | $MATCH '([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})' | awk '{print $2}')"
   FV="$VER.0"
   AV="$VER.*"
