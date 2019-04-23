@@ -49,34 +49,22 @@ ASSEMBLY_INFO_FILE="${ASSEMBLY_INFO_FILE:-AssemblyInfo.cs}"
 echo "INFO: using project file: $ASSEMBLY_INFO_FILE"
 
 getVersion_net() {
-#cat $ASSEMBLY_INFO_FILE
-grep -Po '(?<=AssemblyInformationalVersion\(\").*(?=\"\)])' $ASSEMBLY_INFO_FILE
+  cat $ASSEMBLY_INFO_FILE | grep AssemblyInformationalVersion | $MATCH \".*\" | sed 's/"//g'
 }
 
 # usage: setVersion version
 setVersion_net() {
-V=$1
+  VER="$(echo "$1" | $MATCH '([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})' | awk '{print $2}')"
+  FV="$VER.0"
+  AV="$VER.*"
 
-readarray -d - -t tmp <<< "$V"
+  FC="$(cat "$ASSEMBLY_INFO_FILE")"
+  echo "$FC" \
+  | sed "s/AssemblyFileVersion.*/AssemblyFileVersion\(\"$FV\"\)]/" \
+  | sed "s/AssemblyVersion.*/AssemblyVersion\(\"$AV\"\)]/" \
+  | sed "s/AssemblyInformationalVersion.*/AssemblyInformationalVersion\(\"$1\"\)]/" \
+  > "$ASSEMBLY_INFO_FILE"
 
-#extra=0
-#length=2
-#
-#if [ "${#tmp[@]}" -eq "${length}" ]; then
-#	readarray -d . -t tmp2 <<< "${tmp[1]}"
-#	if [ "${#tmp2[@]}" -eq "${length}" ]; then
-#		extra="$((${tmp2[1]} + 0))"
-#	fi
-#fi
-
-VER=$(echo "${tmp[0]}" | sed -e 's/\r//g')
-
-FV="$VER.0"
-AV="$VER.*"
-
-sed -i "s/AssemblyFileVersion.*/\AssemblyFileVersion\(\"$FV\"\)]/" $ASSEMBLY_INFO_FILE
-sed -i "s/AssemblyVersion.*/\AssemblyVersion\(\"$AV\"\)]/" $ASSEMBLY_INFO_FILE
-sed -i "s/AssemblyInformationalVersion.*/\AssemblyInformationalVersion\(\"$V\"\)]/" $ASSEMBLY_INFO_FILE
-
-cat $ASSEMBLY_INFO_FILE
+  echo "version file is now:"
+  cat "$ASSEMBLY_INFO_FILE"
 }
