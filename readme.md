@@ -34,7 +34,7 @@ $ release version rc    # release a release candidate
 $ release version minor # release a minor version
 $ release version patch # release a patch
 $
-$ # For a .NET project in c# that uses a AssemblyInfo.cs file:
+$ # For a .NET project in c# that uses a AssemblyInfo.cs file with entries for AssemblyVersion, AssemblyFileVersion and AssemblyInformationalVersion:
 $ release csharp pre   # release a preview
 $ release csharp rc    # release a release candidate
 $ release csharp minor # release a minor version
