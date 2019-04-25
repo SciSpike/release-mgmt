@@ -131,16 +131,16 @@ Valid values for `$1`, initially, are `chart` for Helm Charts, `image` for Docke
 * To install WSL open a powershell as admin and type `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux`.
 * After WSL is installed use the Windows Store to install a distro of linux (Ubuntu recommend). If not installing Ubuntu you will need to adjust the url to get the PGP Key below.
 * After your distro is installed open bash and run the following commands:
-  *`sudo apt-get update -y`
-  *`sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common`
-  *`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`
-  *`sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`
-  *`sudo apt-get update -y`
-  *`sudo apt-get install -y docker-ce`
-  *`sudo usermod -aG docker $USER`
-  *`sudo apt-get install -y docker-compose`
-  *`sudo mkdir /c` adjust for your drive where docker is installed. ignore if directory already exists.
-  *`sudo mount --bind /mnt/c /c`
+  * `sudo apt-get update -y`
+  * `sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common`
+  * `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`
+  * `sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`
+  * `sudo apt-get update -y`
+  * `sudo apt-get install -y docker-ce`
+  * `sudo usermod -aG docker $USER`
+  * `sudo apt-get install -y docker-compose`
+  * `sudo mkdir /c` adjust for your drive where docker is installed. ignore if directory already exists.
+  * `sudo mount --bind /mnt/c /c`
 * Lastly, check that everything is running correctly.
-  *`docker info`
-  *`docker-compose --version`
+  * `docker info`
+  * `docker-compose --version`
