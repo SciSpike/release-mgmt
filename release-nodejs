@@ -66,7 +66,6 @@ setVersion_nodejs() {
   echo "$PACKAGE_JSON is now:"
   cat "$PACKAGE_JSON"
   echo "INFO: running npm install to update package-lock.json"
-  ls
   if [ -f /.dockerenv ]; then
     NODE_MODULES_WORKDIR=/tmp/node-work
     mkdir -p $NODE_MODULES_WORKDIR
